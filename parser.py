@@ -6,8 +6,8 @@ import pandas as pd
 from random import uniform
 from time import sleep
 
-
 def get_html(url):
+
     headers = {
         'Accept': '*/*',
         'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -19,7 +19,6 @@ def get_html(url):
         'Origin': 'https://www.avito.ru',
         'Referer': 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=&pmax=4000000&pmin=2000000&s_trg=4&user=1',
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 OPR/58.0.3135.127'
-
     }
 
     data = requests.get(url)

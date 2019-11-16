@@ -25,7 +25,11 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
+
 # Windows shortcuts
 *.lnk
+
+# Idea files
+*.idea
 
 # End of https://www.gitignore.io/api/windows

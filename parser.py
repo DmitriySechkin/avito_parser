@@ -1,6 +1,5 @@
 
 
-
 import requests
 from bs4 import BeautifulSoup as bs
 from datetime import datetime
@@ -10,9 +9,7 @@ from random import uniform
 from time import sleep
 
 
-
-
-def getHtml(url):
+def get_html(url):
     
     headers = {
         'Accept': '*/*',
@@ -33,19 +30,14 @@ def getHtml(url):
     return data.text
 
 
-# In[3]:
 
-
-def getCountPages(html):
+def get_count_pages(html):
     
     soup = bs(html,'lxml')
     pages = soup.find_all('a',class_='pagination-page') [-1].get('href')
     countPage = pages.split('=')[1].split('&')[0]
     
     return int(countPage)
-
-
-# In[35]:
 
 
 def write_csv(data):
@@ -64,10 +56,7 @@ def write_csv(data):
                           data['Описание']) )
 
 
-# In[5]:
-
-
-def getPageData(html):
+def get_page_data(html):
     
     soup = bs(html,'lxml')
     ads = soup.find('div',class_='catalog-list').find_all('div',class_='item_table')
@@ -78,7 +67,7 @@ def getPageData(html):
             title=''
         try:
             url='https://www.avito.ru' + ad.find('div',class_='description').find('h3').find('a').get('href')
-#             print(url)
+
         except:
             url=''
         try:
@@ -109,8 +98,6 @@ def getPageData(html):
 #         write_csv(data)
 
 
-# In[82]:
-
 
 def get_more_data(html):
     soup = bs(html,'lxml')
@@ -140,49 +127,36 @@ def get_more_data(html):
     data_result['Этажи'].append(floor)
     data_result['Материал дома'].append(material)
     data_result['Расстояние от города'].append(distance)
-    
-
-
-# In[9]:
-
-
-urls
-
-
-# In[57]:
-
 
 def main():
-    
-    
+
     url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=1&pmax=4000000&pmin=2000000&s_trg=4&user=1'
     base_url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?'
     page ='p='
     query = '&pmax=4000000&pmin=2000000&s_trg=4&user=1'
     
-    total_pages = getCountPages(getHtml(url))
+    total_pages = get_count_pages(get_html(url))
+
     for i in range(1,total_pages+1):
-#         sleep (uniform(1,8))
+        sleep (uniform(1,8))
         gen_url = base_url + page + str(i) + query
-        html = getHtml(gen_url)
-        getPageData(html)
+        html = get_html(gen_url)
+        get_page_data(html)
     n = 0 
     for url in data_result['Url']:
         n+=1
         print(url)
         print(n)
         sleep (uniform(1,4))        
-        html = getHtml(url)
+        html = get_html(url)
         get_more_data(html)
     
         write_csv(data_result) 
     
 
 
-# In[74]:
 
-
-html = getHtml('https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/dom_74_m_na_uchastke_15_sot._1600446307')
+html = get_html('https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/dom_74_m_na_uchastke_15_sot._1600446307')
 
 
 # In[81]:
@@ -208,18 +182,9 @@ print(views)
 #          pass
 # #         print(i.text)
 
-
-# In[52]:
-
-
-
-
-
-# In[ ]:
-
-
 if __name__ == '__main__':
     urls = []
+
     data_result = {'Название объявления':[],
               'Url':[],
               'Цена':[],
@@ -235,34 +200,4 @@ if __name__ == '__main__':
     main()
 
 
-# In[97]:
-
-
-for i in df['Url']:
-    print(i)
-
-
-# In[99]:
-
-
-df[df['Лен'] > 300]
-
-
-# In[92]:
-
-
-df['Лен']  = [len(i) for i in df['Описание']]
-
-
-# In[85]:
-
-
-df.to_csv('C:/Users/Дмитрий/Desktop/avito1.csv',encoding='utf16')
-
-
-# In[66]:
-
-
-for i in df:
-    df[i] = df[i].str.strip()
 

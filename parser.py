@@ -74,6 +74,7 @@ def get_page_data(html):
     """
     soup = bs(html, 'lxml')
     ads = soup.find('div', class_='catalog-list').find_all('div', class_='item_table')
+
     for ad in ads:
         try:
             title = ad.find('div', class_='description').find('h3').text.strip()

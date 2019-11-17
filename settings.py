@@ -8,7 +8,7 @@ class ConfigReader:
     def __init__(self, path="Settings.ini"):
         self.path = path
 
-        if self.is_file_config():
+        if self.__is_file_config():
             self.reader = self.__get_config_from_file()
         else:
             raise Exception("No file <Settings.ini> found in work directory!")

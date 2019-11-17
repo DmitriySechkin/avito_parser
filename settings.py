@@ -13,7 +13,7 @@ class ConfigReader:
 
         elif not self.__is_file_config() and create_file == True:
 
-            print('Creating of file {}'.format(path))
+            print('Creating of file {0}'.format(path))
 
             self.config.filename = path
             self.config.write()
@@ -28,13 +28,17 @@ class ConfigReader:
         :param name_parametr: name of settings
         :return: settings value
         """
+        if section in self.config.keys():
+            param_value = self.config[section][name_param]
 
-        param_value = self.config.get(section, name_param)
+            if param_value != '':
+                return param_value
+            else:
+                raise Exception("Settings value {0} is empty!".format(name_param))
 
-        if param_value != '':
-            return param_value
         else:
-            raise Exception("Settings value {} is empty!".format(name_param))
+            raise Exception("Section {0} is not in file {1}!".format(section, self.path))
+
 
     def set_setting_param(self, section, name_param, value):
         """
@@ -44,7 +48,8 @@ class ConfigReader:
         :param value: value of setting
         """
 
-
+        if self.config[section]:
+            self.config[section] = value
 
     def __is_file_config(self):
         """
@@ -65,6 +70,7 @@ class ConfigSettings:
 
 def test():
     s = ConfigReader(create_file=True)
+    v = s.get_setting_param('1','1')
     print(s)
 
 test()

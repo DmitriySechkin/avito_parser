@@ -1,2 +1,2 @@
 # avito_parser
-Scrip for parsing avito
+Script for parsing avito

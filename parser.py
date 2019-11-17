@@ -7,6 +7,11 @@ from random import uniform
 from time import sleep
 
 def get_html(url):
+    """
+    getting html code of web page
+    :param url: url of required web page
+    :return: html code of web page
+    """
 
     headers = {
         'Accept': '*/*',
@@ -27,6 +32,11 @@ def get_html(url):
 
 
 def get_count_pages(html):
+    """
+    getting number of pages in the result
+    :param html: html code of a web pages with a search result
+    :return: number pages
+    """
 
     soup = bs(html, 'lxml')
     pages = soup.find_all('a', class_='pagination-page')[-1].get('href')
@@ -36,7 +46,12 @@ def get_count_pages(html):
 
 
 def write_csv(data):
-    with open('C:/Users/Дмитрий/Desktop/avito.csv', 'a', encoding='utf16', newline='') as f:
+    """
+    write result in csv file
+    :param data: obtained result
+    """
+
+    with open('avito.csv', 'a', encoding='utf16', newline='') as f:
         writer = csv.writer(f)
 
         writer.writerow((data['Название объявления'],
@@ -52,6 +67,11 @@ def write_csv(data):
 
 
 def get_page_data(html):
+    """
+    getting data from html code of a web page
+    :param html: html code
+    :return:
+    """
     soup = bs(html, 'lxml')
     ads = soup.find('div', class_='catalog-list').find_all('div', class_='item_table')
     for ad in ads:
@@ -88,8 +108,6 @@ def get_page_data(html):
         else:
             metro = i.text.strip()
         data_result['Метро'].append(metro)
-
-    #         write_csv(data)
 
 
 def get_more_data(html):
@@ -130,7 +148,8 @@ def main():
     page = 'p='
     query = '&pmax=4000000&pmin=2000000&s_trg=4&user=1'
 
-    total_pages = get_count_pages(get_html(url))
+    html_code = get_html(url)
+    total_pages = get_count_pages(html_code)
 
     for i in range(1, total_pages + 1):
         sleep(uniform(1, 8))

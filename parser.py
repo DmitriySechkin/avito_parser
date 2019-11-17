@@ -6,6 +6,7 @@ import pandas as pd
 from random import uniform
 from time import sleep
 
+
 def get_html(url):
     """
     getting html code of web page
@@ -33,7 +34,7 @@ def get_html(url):
 
 def get_count_pages(html):
     """
-    getting number of pages in the result
+    getting number of pages in the search result on avito
     :param html: html code of a web pages with a search result
     :return: number pages
     """
@@ -112,6 +113,11 @@ def get_page_data(html):
 
 
 def get_more_data(html):
+    """
+    getting detailed information in search result on avito
+    :param html: html code
+    """
+
     soup = bs(html, 'lxml')
     try:
         description = soup.find('div', class_='item-description-text').text
@@ -142,8 +148,11 @@ def get_more_data(html):
     data_result['Материал дома'].append(material)
     data_result['Расстояние от города'].append(distance)
 
-def main():
 
+def main():
+    """
+    main function
+    """
     url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=1&pmax=4000000&pmin=2000000&s_trg=4&user=1'
     base_url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?'
     page = 'p='
@@ -169,22 +178,6 @@ def main():
 
         write_csv(data_result)
 
-
-# for i in description:
-#     if 'Этажей' in i.text:
-#         print(i.text.split(': ')[1])
-#     if 'Материал' in i.text:
-#         print(i.text.split(': ')[1])
-#     if 'Расстояние' in i.text:
-#         print(i.text.split(': ')[1])
-# metro = soup.find_all('p',class_="address")
-# for i in metro:
-#     if i.find('i') is not None:
-#         pass
-# #         print(i.text)
-#     else:
-#          pass
-# #         print(i.text)
 
 if __name__ == '__main__':
     urls = []

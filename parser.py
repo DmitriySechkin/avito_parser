@@ -1,5 +1,5 @@
 import requests
-from bs4 import BeautifulSoup as bs
+
 from datetime import datetime
 import csv
 import pandas as pd
@@ -41,9 +41,9 @@ def get_count_pages(html):
 
     soup = bs(html, 'lxml')
     pages = soup.find_all('a', class_='pagination-page')[-1].get('href')
-    countPage = pages.split('=')[1].split('&')[0]
+    count_page = pages.split('=')[1].split('&')[0]
 
-    return int(countPage)
+    return int(count_page)
 
 
 def write_csv(data):
@@ -67,12 +67,25 @@ def write_csv(data):
                          data['Описание']))
 
 
+# def check_page(html):
+#     """
+#     check the title of page
+#     :param html: html code of web page avito
+#     :return:
+#     """
+#     return "Купить дом в Нижнем Новгороде на Avito" in
+
+
 def get_page_data(html):
     """
     getting data from html code of a web page
     :param html: html code
     :return:
     """
+
+    if not check_page(html):
+        return
+
     soup = bs(html, 'lxml')
     ads = soup.find('div', class_='catalog-list').find_all('div', class_='item_table')
 
@@ -98,12 +111,15 @@ def get_page_data(html):
             place = ad.find('p', class_='address').text.strip()
         except:
             place = ''
+
         data_result['Название объявления'].append(title)
         data_result['Url'].append(url)
         data_result['Цена'].append(price)
         data_result['Расположение'].append(place)
         data_result['Дата'].append(date)
+
     metro = soup.find_all('p', class_="address")
+
     for i in metro:
         if i.find('i') is not None:
             metro = i.text.split(',')[0].strip()

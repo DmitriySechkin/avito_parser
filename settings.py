@@ -1,17 +1,25 @@
-import configparser
+from configobj import ConfigObj
 import os
 
 
 class ConfigReader:
-    config = configparser.ConfigParser()
 
-    def __init__(self, path="Settings.ini"):
+    def __init__(self, path="Settings.ini", create_file=False):
         self.path = path
+        self.config = ConfigObj()
 
         if self.__is_file_config():
-            self.reader = self.__get_config_from_file()
+            self.config = ConfigObj(self.path)
+
+        elif not self.__is_file_config() and create_file == True:
+
+            print('Creating of file {}'.format(path))
+
+            self.config.filename = path
+            self.config.write()
+
         else:
-            raise Exception("No file <Settings.ini> found in work directory!")
+            raise Exception("No file {} found in work directory!".format(path))
 
     def get_setting_param(self, section, name_param):
         """
@@ -20,27 +28,28 @@ class ConfigReader:
         :param name_parametr: name of settings
         :return: settings value
         """
-        param_value = self.reader.get(section, name_param)
+
+        param_value = self.config.get(section, name_param)
 
         if param_value != '':
             return param_value
         else:
             raise Exception("Settings value {} is empty!".format(name_param))
 
-    def __get_config_from_file(self):
+    def set_setting_param(self, section, name_param, value):
         """
-        getting settings from file
-        :return: объект с настройками
+        writes setting_param in config file
+        :param section: name of section
+        :param name_param: name of setting
+        :param value: value of setting
         """
 
-        self.config.read(self.path)
 
-        return self.config
 
     def __is_file_config(self):
         """
-        проверяет существует ли файл в рабочем каталоге
-        :return: boolean значение
+        checks for the existence of the file
+        :return: boolean value
         """
         return os.path.exists(self.path)
 
@@ -53,3 +62,9 @@ class ConfigSettings:
         self.psw = self._reader.get_setting_param('CredentialsSudir', 'psw')
         self.domain = self._reader.get_setting_param('CredentialsSudir', 'domain')
         self.url = self._reader.get_setting_param('BaseUrl', 'url')
+
+def test():
+    s = ConfigReader(create_file=True)
+    print(s)
+
+test()

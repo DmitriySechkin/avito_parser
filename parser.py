@@ -48,7 +48,7 @@ def get_count_pages(html):
 
 def write_csv(data):
     """
-    write result in csv file
+    writing result to a csv file
     :param data: obtained result
     """
 
@@ -114,7 +114,7 @@ def get_page_data(html):
 
 def get_more_data(html):
     """
-    getting detailed information in search result on avito
+    getting detailed information from the search result on avito
     :param html: html code
     """
 

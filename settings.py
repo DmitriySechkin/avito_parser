@@ -11,12 +11,8 @@ class ConfigReader:
         if self.__is_file_config():
             self.config = ConfigObj(self.path)
 
-        elif not self.__is_file_config() and create_file == True:
-
-            print('Creating of file {0}'.format(path))
-
-            self.config.filename = path
-            self.config.write()
+        elif not self.__is_file_config() and create_file:
+            self.__create_new_file()
 
         else:
             raise Exception("No file {} found in work directory!".format(path))
@@ -57,6 +53,15 @@ class ConfigReader:
         :return: boolean value
         """
         return os.path.exists(self.path)
+
+    def __create_new_file(self):
+
+        # create empty config file
+
+        print('Creating of file {0}'.format(self.path))
+
+        self.config.filename = self.path
+        self.config.write()
 
 
 class ConfigSettings:

@@ -1,5 +1,6 @@
 from configobj import ConfigObj
 import os
+from exeptions import NoSectionException, NoFileException, NoSettingFindInSection
 
 
 class ConfigHandler:
@@ -15,7 +16,7 @@ class ConfigHandler:
             self.__create_new_file()
 
         else:
-            raise Exception("No file {} found in work directory!".format(path))
+            raise NoFileException(path)
 
     def get_setting_param(self, sections_names, name_param):
         """
@@ -29,7 +30,10 @@ class ConfigHandler:
         for section_name in sections_names:
             section = self.__get_section(section, section_name, create_new_section=False)
 
-        return section[name_param]
+        if not self.__is_exist_param(section, name_param):
+            raise NoSettingFindInSection(section, name_param)
+        else:
+            return section[name_param]
 
     def set_setting_param(self, sections_names, name_param, value):
         """
@@ -55,8 +59,8 @@ class ConfigHandler:
         """
         return os.path.exists(self.path)
 
-    @staticmethod
-    def __get_section(cls, section, section_name, create_new_section=True):
+    # @staticmethod
+    def __get_section(self, section, section_name, create_new_section=True):
         """
         getting a section by section's name
         :param section: object of config section
@@ -72,7 +76,7 @@ class ConfigHandler:
             return section[section_name]
 
         else:
-            raise
+            raise NoSectionException(section_name, self.path)
 
     def __create_new_file(self):
         """
@@ -82,6 +86,16 @@ class ConfigHandler:
 
         self.config.filename = self.path
         self.config.write()
+
+    def __is_exist_param(self, section, name_param):
+        """
+        Checks exist setting in section
+        :param section: section in config file
+        :param name_param: name of settings in section
+        :return: Bool
+        """
+
+        return name_param in section.keys()
 
 
 class ConfigSettings:

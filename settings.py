@@ -2,7 +2,7 @@ from configobj import ConfigObj
 import os
 
 
-class ConfigReader:
+class ConfigHandler:
 
     def __init__(self, path="Settings.ini", create_file=False):
         self.path = path
@@ -21,7 +21,7 @@ class ConfigReader:
         """
         getting settings value
         :param section: name of section
-        :param name_parametr: name of settings
+        :param name_param: name of settings
         :return: settings value
         """
         if section in self.config.keys():
@@ -35,8 +35,7 @@ class ConfigReader:
         else:
             raise Exception("Section {0} is not in file {1}!".format(section, self.path))
 
-
-    def set_setting_param(self, section, name_param, value):
+    def set_setting_param(self, sections_names, name_param, value):
         """
         writes setting_param in config file
         :param section: name of section
@@ -44,8 +43,12 @@ class ConfigReader:
         :param value: value of setting
         """
 
-        if self.config[section]:
-            self.config[section] = value
+        section = self.config
+
+        for section_name in sections_names:
+            section = self.__get_section(section, section_name)
+
+        self.config.write()
 
     def __is_file_config(self):
         """
@@ -54,28 +57,49 @@ class ConfigReader:
         """
         return os.path.exists(self.path)
 
+    def __get_section(self, section, section_name):
+        """
+        getting a section by section's name
+        :param section: object of config section
+        :param section_name: name of section
+        :return: the required section
+        """
+
+        if section_name in section.sections:
+            return section
+        else:
+            section[section_name] = {}
+            return section[section_name]
+
     def __create_new_file(self):
-
-        # create empty config file
-
+        """
+        creating empty config file
+        """
         print('Creating of file {0}'.format(self.path))
 
         self.config.filename = self.path
         self.config.write()
 
+    def __walk_settings_dictionary(self, obj):
+        """
+
+        :return:
+        """
+
 
 class ConfigSettings:
 
     def __init__(self):
-        self._reader = ConfigReader()
+        self._reader = ConfigHandler()
         self.login = self._reader.get_setting_param('CredentialsSudir', 'login')
         self.psw = self._reader.get_setting_param('CredentialsSudir', 'psw')
         self.domain = self._reader.get_setting_param('CredentialsSudir', 'domain')
         self.url = self._reader.get_setting_param('BaseUrl', 'url')
 
-def test():
-    s = ConfigReader(create_file=True)
-    v = s.get_setting_param('1','1')
-    print(s)
+# def test():
+#     s = ConfigHandler(create_file=True)
+#     s.set_setting_param('1', '1', '1')
+#     print(s)
 
-test()
+
+# test()

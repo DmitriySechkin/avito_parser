@@ -1,11 +1,11 @@
 from configobj import ConfigObj
 import os
-from exeptions import NoSectionException, NoFileException, NoSettingFindInSection
+from exeptions import NoSectionException, NoFileException, NoSettingFindInSection, SettingValueIsEmpty
 
 
 class ConfigHandler:
 
-    def __init__(self, path="Settings.ini", create_file=False):
+    def __init__(self, path="settings.ini", create_file=False):
         self.path = path
         self.config = ConfigObj()
 
@@ -18,7 +18,7 @@ class ConfigHandler:
         else:
             raise NoFileException(path)
 
-    def get_setting_param(self, sections_names, name_param):
+    def get_setting(self, sections_names, name_param):
         """
         getting settings value
         :param sections_names: name of section
@@ -35,7 +35,7 @@ class ConfigHandler:
         else:
             return section[name_param]
 
-    def set_setting_param(self, sections_names, name_param, value):
+    def set_setting(self, sections_names, name_param, value):
         """
         writes setting_param in config file
         :param sections_names: name of section
@@ -59,7 +59,6 @@ class ConfigHandler:
         """
         return os.path.exists(self.path)
 
-    # @staticmethod
     def __get_section(self, section, section_name, create_new_section=True):
         """
         getting a section by section's name
@@ -87,7 +86,8 @@ class ConfigHandler:
         self.config.filename = self.path
         self.config.write()
 
-    def __is_exist_param(self, section, name_param):
+    @staticmethod
+    def __is_exist_param(section, name_param):
         """
         Checks exist setting in section
         :param section: section in config file
@@ -98,11 +98,34 @@ class ConfigHandler:
         return name_param in section.keys()
 
 
-class ConfigSettings:
+class MainSettings:
 
     def __init__(self):
-        self._reader = ConfigHandler()
-        self.login = self._reader.get_setting_param('CredentialsSudir', 'login')
-        self.psw = self._reader.get_setting_param('CredentialsSudir', 'psw')
-        self.domain = self._reader.get_setting_param('CredentialsSudir', 'domain')
-        self.url = self._reader.get_setting_param('BaseUrl', 'url')
+
+        self.__reader = ConfigHandler()
+        
+        self.base_url = self.__reader.get_setting(["paths", "url"], "base_url")
+        self.name_file = self.__reader.get_setting(["namefile"], "name_file")
+        self.max_summ = self.__reader.get_setting(["urls_settings"], "max_summ")
+        self.min_summ = self.__reader.get_setting(["urls_settings"], "min_summ")
+
+    def __check_value(self):
+        """
+        Throws exception if the setting value is empty
+        :return:
+        """
+
+        if not self.__is_empty_value(self.base_url):
+            raise SettingValueIsEmpty("base_url")
+
+        if not self.__is_empty_value(self.name_file):
+            raise SettingValueIsEmpty("name_file")
+
+    def __is_empty_value(self, value):
+        """
+        Checks if the setting value is empty, if it's empty, then True will be returned
+        :param value: setting value
+        :return: Bool
+        """
+
+        return value == ''

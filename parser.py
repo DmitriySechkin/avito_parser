@@ -1,5 +1,7 @@
 import requests
-from settings import ConfigHandler
+
+from request_avito import Url
+from settings import MainSettings, ConfigHandler
 
 from datetime import datetime
 import csv
@@ -170,7 +172,7 @@ def main():
     """
     main function
     """
-    url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=1&pmax=4000000&pmin=2000000&s_trg=4&user=1'
+    url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=22&pmax=4000000&pmin=2000000&s_trg=4&user=1'
     base_url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?'
     page = 'p='
     query = '&pmax=4000000&pmin=2000000&s_trg=4&user=1'
@@ -212,9 +214,26 @@ if __name__ == '__main__':
     #                'Просмотры': []
     #                }
     # main()
+    # from urllib import parse
+    # from urllib.parse import urlparse, ParseResult, parse_qs, urlencode, urlunsplit
+    #
+    # url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=2&pmax=4000000&pmin=2000000&s_trg=4&user=1'
+    #
+    # data = urlparse(url)
+    #
+    # query_data = parse_qs(data.query)
+    #
+    # # меняю параметр
+    # query_data['p'][0] = str(2)
 
-    s = ConfigHandler()
-    # s.set_setting_param(["Paths","Url"], "base_url", 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?')
-    v = s.get_setting_param(["Pats"], "name_file")
+    # new_url = urlunsplit((data.scheme, data.hostname, data.path, urlencode(query_data, doseq=True), ''))
+    # print(new_url)
 
-    print(v)
+    settings = MainSettings()
+
+    url = Url(settings.base_url, settings.min_summ, settings.max_summ)
+
+    url.page_number = 3
+    print(url.url)
+
+

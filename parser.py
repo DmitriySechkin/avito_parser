@@ -1,6 +1,7 @@
 import requests
 
-from request_avito import Url
+from parser_response import ParserAvito
+from request_avito import Url, RequestHandler
 from settings import MainSettings, ConfigHandler
 
 from datetime import datetime
@@ -43,6 +44,7 @@ def get_count_pages(html):
     """
 
     soup = bs(html, 'lxml')
+
     pages = soup.find_all('a', class_='pagination-page')[-1].get('href')
     count_page = pages.split('=')[1].split('&')[0]
 
@@ -233,7 +235,16 @@ if __name__ == '__main__':
 
     url = Url(settings.base_url, settings.min_summ, settings.max_summ)
 
+    req_avito = RequestHandler()
+
+    data = req_avito.get_html(url.url)
+
+    parser_avito = ParserAvito(data)
+
+    print(parser_avito.count_page)
+
     url.page_number = 3
+
     print(url.url)
 
 

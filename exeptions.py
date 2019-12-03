@@ -73,3 +73,22 @@ class ErrorSummParameter(Error):
     def __init__(self, min_summ, max_summ):
         err_text = "the minimum amount = {0} is greater than the maximum! = {1}".format(min_summ, max_summ)
         super(ErrorSummParameter, self).__init__(err_text)
+
+
+class FailedGetRequest(Error):
+    """
+    The exception is thrown when the response code is not success
+    """
+
+    def __init__(self, code):
+        err_text = "Failed get request! Response code is {}".format(code)
+        super(FailedGetRequest, self).__init__(err_text)
+
+class FailedGettingNumberPages(Error):
+    """
+    The exception is thrown when failed the getting of number last page
+    """
+
+    def __init__(self):
+        err_text = "Failed get number of pages in html!"
+        super(FailedGettingNumberPages, self).__init__(err_text)

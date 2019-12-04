@@ -16,11 +16,11 @@ HEADERS = {
 
 class Url:
 
-    def __init__(self, base_url, min_price=0, max_price=0):
+    def __init__(self, base_url):
         self.base_url = base_url
 
-        self.min_price = min_price
-        self.max_price = max_price
+        self.min_price = 0
+        self.max_price = 0
         self.page_number = 1
 
     @property

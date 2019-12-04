@@ -36,21 +36,6 @@ def get_html(url):
     return data.text
 
 
-def get_count_pages(html):
-    """
-    getting number of pages in the search result on avito
-    :param html: html code of a web pages with a search result
-    :return: number pages
-    """
-
-    soup = bs(html, 'lxml')
-
-    pages = soup.find_all('a', class_='pagination-page')[-1].get('href')
-    count_page = pages.split('=')[1].split('&')[0]
-
-    return int(count_page)
-
-
 def write_csv(data):
     """
     writing result to a csv file
@@ -170,10 +155,48 @@ def get_more_data(html):
     data_result['Расстояние от города'].append(distance)
 
 
+def get_current_url(settings):
+    url = Url(settings.base_url)
+
+    url.min_price = settings.min_summ
+    url.max_price = settings.max_summ
+
+    return url.url
+
+
+def send_get_request(request_avito, url):
+    return request_avito.get_html(url)
+
+
+def get_main_ads_data(request_avito, total_pages, url):
+    for i in range(1, total_pages + 1):
+        url.page_number = i
+        send_get_request(request_avito, url)
+
+
 def main():
     """
     main function
     """
+    settings = MainSettings()
+
+    url = get_current_url(settings)
+
+    req_avito = RequestHandler()
+
+    html_data = send_get_request(req_avito, url)
+
+    parser_avito = ParserAvito(html_data)
+
+    total_pages = parser_avito.count_page
+
+    get_main_ads_data(total_pages, url)
+
+
+
+
+    print(url.url)
+
     url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=22&pmax=4000000&pmin=2000000&s_trg=4&user=1'
     base_url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?'
     page = 'p='
@@ -231,10 +254,6 @@ if __name__ == '__main__':
     # new_url = urlunsplit((data.scheme, data.hostname, data.path, urlencode(query_data, doseq=True), ''))
     # print(new_url)
 
-    settings = MainSettings()
-
-    url = Url(settings.base_url, settings.min_summ, settings.max_summ)
-
     req_avito = RequestHandler()
 
     data = req_avito.get_html(url.url)
@@ -246,5 +265,3 @@ if __name__ == '__main__':
     url.page_number = 3
 
     print(url.url)
-
-

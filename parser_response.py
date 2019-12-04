@@ -21,6 +21,7 @@ class ParserAvito:
         if last_page_tag:
             href_last_page = last_page_tag.get('href')
             count_page = href_last_page.split('=')[1].split('&')[0]
+
         else:
             raise FailedGettingNumberPages()
 

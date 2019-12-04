@@ -190,20 +190,11 @@ def main():
 
     total_pages = parser_avito.count_page
 
-    get_main_ads_data(total_pages, url)
+    get_main_ads_data(req_avito, total_pages, url)
 
 
 
 
-    print(url.url)
-
-    url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=22&pmax=4000000&pmin=2000000&s_trg=4&user=1'
-    base_url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?'
-    page = 'p='
-    query = '&pmax=4000000&pmin=2000000&s_trg=4&user=1'
-
-    html_code = get_html(url)
-    total_pages = get_count_pages(html_code)
 
     for i in range(1, total_pages + 1):
         sleep(uniform(1, 8))
@@ -226,18 +217,18 @@ def main():
 if __name__ == '__main__':
     # urls = []
     #
-    # data_result = {'Название объявления': [],
-    #                'Url': [],
-    #                'Цена': [],
-    #                'Дата': [],
-    #                'Расположение': [],
-    #                'Метро': [],
-    #                'Этажи': [],
-    #                'Материал дома': [],
-    #                'Расстояние от города': [],
-    #                'Описание': [],
-    #                'Просмотры': []
-    #                }
+    data_result = {'Название объявления': [],
+                   'Url': [],
+                   'Цена': [],
+                   'Дата': [],
+                   'Расположение': [],
+                   'Метро': [],
+                   'Этажи': [],
+                   'Материал дома': [],
+                   'Расстояние от города': [],
+                   'Описание': [],
+                   'Просмотры': []
+                   }
     # main()
     # from urllib import parse
     # from urllib.parse import urlparse, ParseResult, parse_qs, urlencode, urlunsplit

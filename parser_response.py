@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup as bs
-
 from exeptions import FailedGettingNumberPages
 
 
@@ -26,3 +25,22 @@ class ParserAvito:
             raise FailedGettingNumberPages()
 
         return int(count_page)
+
+
+class PageData:
+
+    def __init__(self):
+
+        self.page_data = {
+            'Название объявления': [],
+            'Url': [],
+            'Цена': [],
+            'Дата': [],
+            'Расположение': [],
+            'Метро': [],
+            'Этажи': [],
+            'Материал дома': [],
+            'Расстояние от города': [],
+            'Описание': [],
+            'Просмотры': []
+        }

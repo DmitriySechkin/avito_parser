@@ -60,6 +60,7 @@ class Url:
 
         if self.min_price != 0:
             query_data['pmin'] = self.min_price
+
         if self.max_price != 0:
             query_data['pmax'] = self.max_price
 
@@ -108,13 +109,4 @@ class RequestHandler:
 
 
 
-def get_html(url):
-    """
-    getting html code of web self.page_number
-    :param url: url of required web self.page_number
-    :return: html code of web self.page_number
-    """
 
-    data = requests.get(url)
-
-    return data.text

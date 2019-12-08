@@ -5,13 +5,13 @@ import requests
 from exeptions import ErrorSummParameter, ZeroPageNumber, FailedGetRequest
 
 HEADERS = {
-        'Accept': '*/*',
-        'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Connection': 'keep-alive',
-        'Content-Length': '0',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 OPR/58.0.3135.127'
-    }
+    'Accept': '*/*',
+    'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Connection': 'keep-alive',
+    'Content-Length': '0',
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 OPR/58.0.3135.127'
+}
 
 
 class Url:
@@ -85,7 +85,6 @@ class Url:
 class RequestHandler:
 
     def __init__(self):
-
         self.__session = requests.session()
         self.__headers = HEADERS
 
@@ -101,12 +100,6 @@ class RequestHandler:
 
         return response.text
 
-
     def __check_result_response(self, response):
         if response.status_code != 200:
             raise FailedGetRequest(response.status_code)
-
-
-
-
-

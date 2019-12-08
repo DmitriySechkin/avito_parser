@@ -17,20 +17,6 @@ def get_html(url):
     :param url: url of required web page
     :return: html code of web page
     """
-
-    headers = {
-        'Accept': '*/*',
-        'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Connection': 'keep-alive',
-        'Content-Length': '0',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Host': 'mc.yandex.ru',
-        # 'cookie': '5.367a37203faa7618a7d90a8d0f8c6e0b47e1eada7172e06c47e1eada7172e06c47e1eada7172e06c47e1eada7172e06cb59320d6eb6303c1b59320d6eb6303c1b59320d6eb6303c147e1eada7172e06c8a38e2c5b3e08b898a38e2c5b3e08b890df103df0c26013a0df103df0c26013a2ebf3cb6fd35a0ac0df103df0c26013a8b1472fe2f9ba6b984dcacfe8ebe897bfa4d7ea84258c63d59c9621b2c0fa58f897baa7410138ead3de19da9ed218fe23de19da9ed218fe23de19da9ed218fe23de19da9ed218fe23de19da9ed218fe23de19da9ed218fe23de19da9ed218fe23de19da9ed218fe23de19da9ed218fe23de19da9ed218fe23de19da9ed218fe23de19da9ed218fe2cd39050aceac4b90d0dc958cdeccdc4675d0caa58fe5eefe01df084c0cadacc688ba95ac8dca91fe38571b39497804ddaeb0b8428d5861b3db8108da9e496db560768b50dd5e12c31321afc52f74340e63b9239109e833b2465d5650ed2fd5c1685428d00dc691fa9e82118971f2ed6494d66450ac1e7292f63a0d5cf077a1cf3de19da9ed218fe23de19da9ed218fe2fe6ea02d92bd8a116ccf980009adbe889026067667e1df74b841da6c7dc79d0b;',
-        'Origin': 'https://www.avito.ru',
-        'Referer': 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=&pmax=4000000&pmin=2000000&s_trg=4&user=1',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36 OPR/58.0.3135.127'
-    }
-
     data = requests.get(url)
 
     return data.text
@@ -55,67 +41,6 @@ def write_csv(data):
                          data['Материал дома'],
                          data['Расстояние от города'],
                          data['Описание']))
-
-
-# def check_page(html):
-#     """
-#     check the title of page
-#     :param html: html code of web page avito
-#     :return:
-#     """
-#     return "Купить дом в Нижнем Новгороде на Avito" in
-
-
-def get_page_data(html):
-    """
-    getting data from html code of a web page
-    :param html: html code
-    :return:
-    """
-
-    if not check_page(html):
-        return
-
-    soup = bs(html, 'lxml')
-    ads = soup.find('div', class_='catalog-list').find_all('div', class_='item_table')
-
-    for ad in ads:
-        try:
-            title = ad.find('div', class_='description').find('h3').text.strip()
-        except:
-            title = ''
-        try:
-            url = 'https://www.avito.ru' + ad.find('div', class_='description').find('h3').find('a').get('href')
-
-        except:
-            url = ''
-        try:
-            price = ad.find('div', class_='about').text.strip()
-        except:
-            price = ''
-        try:
-            date = ad.find('div', class_='js-item-date').get('data-absolute-date').strip()
-        except:
-            date = ''
-        try:
-            place = ad.find('p', class_='address').text.strip()
-        except:
-            place = ''
-
-        data_result['Название объявления'].append(title)
-        data_result['Url'].append(url)
-        data_result['Цена'].append(price)
-        data_result['Расположение'].append(place)
-        data_result['Дата'].append(date)
-
-    metro = soup.find_all('p', class_="address")
-
-    for i in metro:
-        if i.find('i') is not None:
-            metro = i.text.split(',')[0].strip()
-        else:
-            metro = i.text.strip()
-        data_result['Метро'].append(metro)
 
 
 def get_more_data(html):
@@ -155,23 +80,27 @@ def get_more_data(html):
     data_result['Расстояние от города'].append(distance)
 
 
-def get_current_url(settings):
-    url = Url(settings.base_url)
+def get_object_url(settings):
+    url_obj = Url(settings.base_url)
 
-    url.min_price = settings.min_summ
-    url.max_price = settings.max_summ
+    url_obj.min_price = settings.min_summ
+    url_obj.max_price = settings.max_summ
 
-    return url.url
+    return url_obj
 
 
 def send_get_request(request_avito, url):
     return request_avito.get_html(url)
 
 
-def get_main_ads_data(request_avito, total_pages, url):
+def get_main_ads_data(request_avito, total_pages, url, parser_avito):
     for i in range(1, total_pages + 1):
         url.page_number = i
-        send_get_request(request_avito, url)
+        print(i)
+        html_data = send_get_request(request_avito, url.url)
+
+        parser_avito.html = html_data
+        parser_avito.parse_main_data()
 
 
 def main():
@@ -180,38 +109,36 @@ def main():
     """
     settings = MainSettings()
 
-    url = get_current_url(settings)
+    url_obj = get_object_url(settings)
 
     req_avito = RequestHandler()
 
-    html_data = send_get_request(req_avito, url)
+    html_data = send_get_request(req_avito, url_obj.url)
 
-    parser_avito = ParserAvito(html_data)
+    parser_avito = ParserAvito()
+
+    parser_avito.html = html_data
 
     total_pages = parser_avito.count_page
 
-    get_main_ads_data(req_avito, total_pages, url)
+    get_main_ads_data(req_avito, total_pages, url_obj, parser_avito)
 
-
-
-
-
-    for i in range(1, total_pages + 1):
-        sleep(uniform(1, 8))
-        gen_url = base_url + page + str(i) + query
-        html = get_html(gen_url)
-        get_page_data(html)
-    n = 0
-
-    for url in data_result['Url']:
-        n += 1
-        print(url)
-        print(n)
-        sleep(uniform(1, 4))
-        html = get_html(url)
-        get_more_data(html)
-
-        write_csv(data_result)
+    # for i in range(1, total_pages + 1):
+    #     sleep(uniform(1, 8))
+    #     gen_url = base_url + page + str(i) + query
+    #     html = get_html(gen_url)
+    #     get_page_data(html)
+    # n = 0
+    #
+    # for url in data_result['Url']:
+    #     n += 1
+    #     print(url)
+    #     print(n)
+    #     sleep(uniform(1, 4))
+    #     html = get_html(url)
+    #     get_more_data(html)
+    #
+    #     write_csv(data_result)
 
 
 if __name__ == '__main__':
@@ -229,7 +156,7 @@ if __name__ == '__main__':
                    'Описание': [],
                    'Просмотры': []
                    }
-    # main()
+    main()
     # from urllib import parse
     # from urllib.parse import urlparse, ParseResult, parse_qs, urlencode, urlunsplit
     #
@@ -245,14 +172,14 @@ if __name__ == '__main__':
     # new_url = urlunsplit((data.scheme, data.hostname, data.path, urlencode(query_data, doseq=True), ''))
     # print(new_url)
 
-    req_avito = RequestHandler()
-
-    data = req_avito.get_html(url.url)
-
-    parser_avito = ParserAvito(data)
-
-    print(parser_avito.count_page)
-
-    url.page_number = 3
-
-    print(url.url)
+    # req_avito = RequestHandler()
+    #
+    # data = req_avito.get_html(url.url)
+    #
+    # parser_avito = ParserAvito(data)
+    #
+    # print(parser_avito.count_page)
+    #
+    # url.page_number = 3
+    #
+    # print(url.url)

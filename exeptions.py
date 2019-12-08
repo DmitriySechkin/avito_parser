@@ -84,6 +84,7 @@ class FailedGetRequest(Error):
         err_text = "Failed get request! Response code is {}".format(code)
         super(FailedGetRequest, self).__init__(err_text)
 
+
 class FailedGettingNumberPages(Error):
     """
     The exception is thrown when failed the getting of number last page
@@ -92,3 +93,23 @@ class FailedGettingNumberPages(Error):
     def __init__(self):
         err_text = "Failed get number of pages in html!"
         super(FailedGettingNumberPages, self).__init__(err_text)
+
+
+class FailedAdsDataGet(Error):
+    """
+    The exception is thrown when failed the getting of ads data on the page
+    """
+
+    def __init__(self, number_page):
+        err_text = "Failed ads data get on page {}!".format(number_page)
+        super(FailedAdsDataGet, self).__init__(err_text)
+
+
+class KeyNotFoundInPageData(Error):
+    """
+    The exception is thrown when failed the getting of ads data on the page
+    """
+
+    def __init__(self, name_key):
+        err_text = "Not found key {} in page data!".format(name_key)
+        super(KeyNotFoundInPageData, self).__init__(err_text)

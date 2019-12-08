@@ -103,7 +103,7 @@ class MainSettings:
     def __init__(self):
 
         self.__reader = ConfigHandler()
-        
+
         self.base_url = self.__reader.get_setting(["paths", "url"], "base_url")
         self.name_file = self.__reader.get_setting(["namefile"], "name_file")
         self.max_summ = self.__reader.get_setting(["urls_settings"], "max_summ")

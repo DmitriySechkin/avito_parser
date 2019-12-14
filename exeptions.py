@@ -105,11 +105,12 @@ class FailedAdsDataGet(Error):
         super(FailedAdsDataGet, self).__init__(err_text)
 
 
-class KeyNotFoundInPageData(Error):
+
+class FailedItemsGetting(Error):
     """
     The exception is thrown when failed the getting of ads data on the page
     """
 
-    def __init__(self, name_key):
-        err_text = "Not found key {} in page data!".format(name_key)
-        super(KeyNotFoundInPageData, self).__init__(err_text)
+    def __init__(self):
+        err_text = "Not found items tag in page data!".format()
+        super(FailedItemsGetting, self).__init__(err_text)

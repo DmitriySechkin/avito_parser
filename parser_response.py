@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup as bs
-from exeptions import FailedGettingNumberPages, FailedAdsDataGet, KeyNotFoundInPageData
+from exeptions import FailedGettingNumberPages, FailedAdsDataGet, FailedItemsGetting
 
 
 class ParserAvito:
@@ -129,7 +129,7 @@ class ParserAvito:
 
     def __get_metro(self):
         """
-        Get metro station in the ad
+        Gets the name of the metro station in the ad
         :return: None
         """
 
@@ -144,6 +144,72 @@ class ParserAvito:
                 metro = ad.text.strip()
 
             self.result_data.append_data('Metro', metro)
+
+    def __get_description_ad(self):
+        """
+        Gets a description of the house in ad
+        :return: description
+        """
+        description = ''
+        description_tag = self.__soup.find('div', class_='item-description-text')
+        if description_tag:
+            description = description_tag.text
+        return description
+
+    def __get_views_ad(self):
+        """
+        Gets an info about the number of views
+        :return: number of views
+        """
+
+        views = ''
+        views_tag = self.__soup.find('div', class_='title-info-metadata-item title-info-metadata-views')
+        if views_tag:
+            views = views_tag.text
+        return views
+
+    def __get_items_ads(self):
+        """
+        Gets items in the ad for retrieving the data about the material of the house,
+        distance from the city and number of floors
+        :return: items tag
+        """
+
+        items_tag = self.__soup.find_all('li', class_='item-params-list-item')
+
+        if items_tag:
+            return items_tag
+        else:
+            raise FailedItemsGetting()
+
+    def __get_detail_data_in_ad(self):
+        """
+        Gets in every ad the data about the number of floors, material of the house
+        and distance from the city
+        :return: data of the parameter
+        """
+
+        items = self.__get_items_ads()
+
+        data_keys = {}
+
+        for item in items:
+            data_keys = {}
+            key = item.find('span', class_='item-params-label').text
+            data_keys[key] = []
+            data_keys[key].append(self.__get_data_in_item(item).strip())
+            # data_keys = {
+            #     'Floors Number': self.__get_data_in_item('Floors Number'),
+            #     'Material': self.__get_data_in_item('Material'),
+            #     'Distance': self.__get_data_in_item('Distance')
+            # }
+
+            data = [self.result_data.append_data(key, data_keys[key]) for key in data_keys]
+
+    def __get_data_in_item(self, item):
+
+        return item.text
+
 
     def parse_main_data(self):
         """
@@ -167,6 +233,23 @@ class ParserAvito:
 
         self.__get_metro()
 
+    def parse_detail_data(self):
+        """
+        Getting detailed information from the search result on the avito site
+        :return: None
+        """
+
+        data_keys = {
+            'Description': self.__get_description_ad(),
+            'Views': self.__get_views_ad(),
+        }
+
+        data = [self.result_data.append_data(key, data_keys[key]) for key in data_keys]
+
+        self.__get_detail_data_in_ad()
+
+
+
 
 class PageData:
 
@@ -180,7 +263,7 @@ class PageData:
             'Metro': [],
             'Floors Number': [],
             'Material': [],
-            'Distance from city': [],
+            'Distance': [],
             'Description': [],
             'Views': []
         }
@@ -195,6 +278,6 @@ class PageData:
 
         if key in self.page_data:
             self.page_data[key].append(value)
-
         else:
-            raise KeyNotFoundInPageData
+            self.page_data[key] = value
+

@@ -1,25 +1,16 @@
+import time
+
 import requests
 
+from exeptions import FailedItemsGetting, FailedGetRequest
 from parser_response import ParserAvito
 from request_avito import Url, RequestHandler
 from settings import MainSettings, ConfigHandler
 
-from datetime import datetime
 import csv
-import pandas as pd
-from random import uniform
-from time import sleep
 
 
-def get_html(url):
-    """
-    getting html code of web page
-    :param url: url of required web page
-    :return: html code of web page
-    """
-    data = requests.get(url)
-
-    return data.text
+# in this example we get data about houses in Nizhny Novgorod
 
 
 def write_csv(data):
@@ -43,43 +34,6 @@ def write_csv(data):
                          data['Описание']))
 
 
-def get_more_data(html):
-    """
-    getting detailed information from the search result on avito
-    :param html: html code
-    """
-
-    soup = bs(html, 'lxml')
-    try:
-        description = soup.find('div', class_='item-description-text').text
-    except:
-        description = ''
-    try:
-        views = soup.find('div', class_='title-info-metadata-item title-info-metadata-views').text
-    except:
-        views = ''
-
-    data_result['Описание'].append(description)
-    data_result['Просмотры'].append(views)
-
-    items = soup.find_all('li', class_='item-params-list-item')
-    floor = ''
-    material = ''
-    distance = ''
-
-    for item in items:
-        if 'Этажей' in item.text:
-            floor = item.text.split(': ')[1]
-        if 'Материал' in item.text:
-            material = item.text.split(': ')[1]
-        if 'Расстояние' in item.text:
-            distance = item.text.split(': ')[1]
-
-    data_result['Этажи'].append(floor)
-    data_result['Материал дома'].append(material)
-    data_result['Расстояние от города'].append(distance)
-
-
 def get_object_url(settings):
     url_obj = Url(settings.base_url)
 
@@ -89,18 +43,68 @@ def get_object_url(settings):
     return url_obj
 
 
-def send_get_request(request_avito, url):
+def send_get_request(request_avito, url, wait_flag=False):
+    """
+    Sends requests to the avito web server
+    :param request_avito: object of the class RequestHandler
+    :param url: url of the required page
+    :param wait_flag: if flag = True then the programm waits for a random time
+    :return: None
+    """
+
+    if wait_flag:
+        request_avito.sleep_random_time()
+
     return request_avito.get_html(url)
 
 
 def get_main_ads_data(request_avito, total_pages, url, parser_avito):
-    for i in range(1, total_pages + 1):
+    """
+    Getting the main data from an ad
+    :param request_avito: object of the class RequestHandler
+    :param total_pages: total numbers of the pages in the searchings result
+    :param url: object of the class Url
+    :param parser_avito: object of the class ParserAvito
+    :return: None
+    """
+    for i in range(2, total_pages + 1):
         url.page_number = i
-        print(i)
+        print(i, url.url, sep=' ')
         html_data = send_get_request(request_avito, url.url)
 
         parser_avito.html = html_data
         parser_avito.parse_main_data()
+
+
+def get_detail_ads_data(request_avito, parser_avito):
+    """
+    Retrieving the detail data from an ad
+    :param request_avito: object of the class RequestHandler
+    :param parser_avito: object of the class ParserAvito
+    :return: None
+    """
+    cnt = 0
+
+    start_time = time.time()
+
+    for url in parser_avito.result_data.page_data['Url']:
+
+        print(round(cnt / len(parser_avito.result_data.page_data['Url']) * 100, 2), "%")
+
+        try:
+            html_data = send_get_request(request_avito, url, True)
+        except FailedItemsGetting as err:
+            print(url, str(err), sep=" ")
+            continue
+        except FailedGetRequest as err:
+            print(url, str(err), sep=" ")
+            continue
+
+        parser_avito.html = html_data
+        parser_avito.parse_detail_data()
+        cnt += 1
+
+    print("time of discharge {} minutes".format(round((time.time() - start_time) / 60), 2))
 
 
 def main():
@@ -113,6 +117,8 @@ def main():
 
     req_avito = RequestHandler()
 
+    print(url_obj.url)
+
     html_data = send_get_request(req_avito, url_obj.url)
 
     parser_avito = ParserAvito()
@@ -122,6 +128,8 @@ def main():
     total_pages = parser_avito.count_page
 
     get_main_ads_data(req_avito, total_pages, url_obj, parser_avito)
+
+    get_detail_ads_data(req_avito, parser_avito)
 
     # for i in range(1, total_pages + 1):
     #     sleep(uniform(1, 8))
@@ -142,20 +150,6 @@ def main():
 
 
 if __name__ == '__main__':
-    # urls = []
-    #
-    data_result = {'Название объявления': [],
-                   'Url': [],
-                   'Цена': [],
-                   'Дата': [],
-                   'Расположение': [],
-                   'Метро': [],
-                   'Этажи': [],
-                   'Материал дома': [],
-                   'Расстояние от города': [],
-                   'Описание': [],
-                   'Просмотры': []
-                   }
     main()
     # from urllib import parse
     # from urllib.parse import urlparse, ParseResult, parse_qs, urlencode, urlunsplit

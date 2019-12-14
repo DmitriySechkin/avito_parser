@@ -1,4 +1,6 @@
-import requests
+from random import uniform
+from time import sleep
+
 from urllib.parse import urlparse, urlencode, urlunsplit
 import requests
 
@@ -103,3 +105,7 @@ class RequestHandler:
     def __check_result_response(self, response):
         if response.status_code != 200:
             raise FailedGetRequest(response.status_code)
+
+    def sleep_random_time(self):
+        sleep(uniform(1, 5))
+

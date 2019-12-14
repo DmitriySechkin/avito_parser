@@ -129,3 +129,6 @@ class MainSettings:
         """
 
         return value == ''
+
+
+

@@ -1,5 +1,9 @@
+import datetime
+import locale
+
 from bs4 import BeautifulSoup as bs
 from exeptions import FailedGettingNumberPages, FailedAdsDataGet, FailedItemsGetting
+import pymorphy2
 
 
 class ParserAvito:
@@ -110,6 +114,7 @@ class ParserAvito:
 
         if date_tag:
             date = date_tag.get('data-absolute-date').strip()
+            date = self.__change_date_format(date)
 
         return date
 
@@ -119,31 +124,14 @@ class ParserAvito:
         :param ad: tag of the ad
         :return: date
         """
+
         place = ''
-        place_tag = ad.find('p', class_='address')
+        place_tag = ad.find('span', class_='item-address__string')
 
         if place_tag:
             place = place_tag.text.strip()
 
         return place
-
-    def __get_metro(self):
-        """
-        Gets the name of the metro station in the ad
-        :return: None
-        """
-
-        metro = ''
-
-        metro_tag = self.__soup.find_all('p', class_="address")
-
-        for ad in metro_tag:
-            if ad.find('i') is not None:
-                metro = ad.text.split(',')[0].strip()
-            else:
-                metro = ad.text.strip()
-
-            self.result_data.append_data('Metro', metro)
 
     def __get_description_ad(self):
         """
@@ -152,8 +140,10 @@ class ParserAvito:
         """
         description = ''
         description_tag = self.__soup.find('div', class_='item-description-text')
+
         if description_tag:
-            description = description_tag.text
+            description = description_tag.text.strip()
+
         return description
 
     def __get_views_ad(self):
@@ -165,7 +155,7 @@ class ParserAvito:
         views = ''
         views_tag = self.__soup.find('div', class_='title-info-metadata-item title-info-metadata-views')
         if views_tag:
-            views = views_tag.text
+            views = views_tag.text.split(" (")[0]
         return views
 
     def __get_items_ads(self):
@@ -188,28 +178,27 @@ class ParserAvito:
         and distance from the city
         :return: data of the parameter
         """
-
         items = self.__get_items_ads()
 
-        data_keys = {}
-
         for item in items:
-            data_keys = {}
             key = item.find('span', class_='item-params-label').text
-            data_keys[key] = []
-            data_keys[key].append(self.__get_data_in_item(item).strip())
-            # data_keys = {
-            #     'Floors Number': self.__get_data_in_item('Floors Number'),
-            #     'Material': self.__get_data_in_item('Material'),
-            #     'Distance': self.__get_data_in_item('Distance')
-            # }
+            value = self.__get_data_in_item(item).strip()
 
-            data = [self.result_data.append_data(key, data_keys[key]) for key in data_keys]
+            self.result_data.append_data(key, value)
 
     def __get_data_in_item(self, item):
+        """
+        Get more detail data in an ad
+        :param item: tag of the detail data
+        :return: value of the detail data
+        """
+        split_text = item.text.split(": ")
+        text = ''
 
-        return item.text
+        if len(split_text) > 0:
+            text = split_text[1].strip()
 
+        return text
 
     def parse_main_data(self):
         """
@@ -222,16 +211,14 @@ class ParserAvito:
 
         for ad in ads:
             data_keys = {
-                'Name ad': self.__get_name_ad(ad),
+                'Наименование объявления': self.__get_name_ad(ad),
                 'Url': self.__get_url_ad(ad),
-                'Price': self.__get_price_ad(ad),
-                'Date': self.__get_date_ad(ad),
-                'Place': self.__get_place_ad(ad)
+                'Цена': self.__get_price_ad(ad),
+                'Дата': self.__get_date_ad(ad),
+                'Месторасположение': self.__get_place_ad(ad)
             }
 
             data = [self.result_data.append_data(key, data_keys[key]) for key in data_keys]
-
-        self.__get_metro()
 
     def parse_detail_data(self):
         """
@@ -240,32 +227,49 @@ class ParserAvito:
         """
 
         data_keys = {
-            'Description': self.__get_description_ad(),
-            'Views': self.__get_views_ad(),
+            'Описание': self.__get_description_ad(),
+            'Просмотры': self.__get_views_ad(),
         }
 
         data = [self.result_data.append_data(key, data_keys[key]) for key in data_keys]
 
         self.__get_detail_data_in_ad()
 
+    def __change_date_format(self, date):
 
+        if "сегодня" in date.lower():
+            date = datetime.datetime.today()
+        elif "вчера" in date.lower():
+            date = datetime.datetime.today() - datetime.timedelta(1)
+        else:
+            loc = locale.getlocale()
+            date_str = date.split()[:2]
+
+            locale.setlocale(locale.LC_ALL, 'ru_RU')
+            m = pymorphy2.MorphAnalyzer()
+
+            date_str[1] = m.parse(date_str[1])[0].inflect({'nomn'}).word.title()
+            date = ' '.join(date_str)
+            date = datetime.datetime.strptime(date + " 2019", "%d %B %Y")
+
+            locale.setlocale(locale.LC_ALL, loc)
+
+        date = date.strftime("%d.%m.%Y")
+
+        return date
 
 
 class PageData:
 
     def __init__(self):
         self.page_data = {
-            'Name ad': [],
+            'Наименование объявления': [],
             'Url': [],
-            'Price': [],
-            'Date': [],
-            'Place': [],
-            'Metro': [],
-            'Floors Number': [],
-            'Material': [],
-            'Distance': [],
-            'Description': [],
-            'Views': []
+            'Цена': [],
+            'Дата': [],
+            'Месторасположение': [],
+            'Описание': [],
+            'Просмотры': []
         }
 
     def append_data(self, key, value):
@@ -279,5 +283,5 @@ class PageData:
         if key in self.page_data:
             self.page_data[key].append(value)
         else:
-            self.page_data[key] = value
-
+            self.page_data[key] = []
+            self.page_data[key].append(value)

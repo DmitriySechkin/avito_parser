@@ -1,38 +1,34 @@
 import time
 
-import requests
+import os
 
 from exeptions import FailedItemsGetting, FailedGetRequest
 from parser_response import ParserAvito
 from request_avito import Url, RequestHandler
-from settings import MainSettings, ConfigHandler
+from settings import MainSettings
 
 import csv
 
 
-# in this example we get data about houses in Nizhny Novgorod
+# getting of data about houses in Nizhny Novgorod and write result to csv file
 
 
-def write_csv(data):
+def write_csv(data_result, row_number):
     """
     writing result to a csv file
-    :param data: obtained result
+    :param data_result: obtained result
+    :param row_number: number of element in lists of result
     """
 
     with open('avito.csv', 'a', encoding='utf16', newline='') as f:
         writer = csv.writer(f)
 
-        writer.writerow((data['Название объявления'],
-                         data['Url'],
-                         data['Цена'],
-                         data['Дата'],
-                         data['Расположение'],
-                         data['Метро'],
-                         data['Этажи'],
-                         data['Материал дома'],
-                         data['Расстояние от города'],
-                         data['Описание']))
+        data_row = [data_result[row][row_number] for row in data_result]
+        writer.writerow(data_row)
 
+def check_file_result():
+    if os.path.exists('avito.csv'):
+        os.remove('avito.csv')
 
 def get_object_url(settings):
     url_obj = Url(settings.base_url)
@@ -67,7 +63,7 @@ def get_main_ads_data(request_avito, total_pages, url, parser_avito):
     :param parser_avito: object of the class ParserAvito
     :return: None
     """
-    for i in range(2, total_pages + 1):
+    for i in range(1, total_pages + 1):
         url.page_number = i
         print(i, url.url, sep=' ')
         html_data = send_get_request(request_avito, url.url)
@@ -102,6 +98,9 @@ def get_detail_ads_data(request_avito, parser_avito):
 
         parser_avito.html = html_data
         parser_avito.parse_detail_data()
+
+        write_csv(parser_avito.result_data.page_data, cnt)
+
         cnt += 1
 
     print("time of discharge {} minutes".format(round((time.time() - start_time) / 60), 2))
@@ -129,51 +128,10 @@ def main():
 
     get_main_ads_data(req_avito, total_pages, url_obj, parser_avito)
 
-    get_detail_ads_data(req_avito, parser_avito)
+    check_file_result()
 
-    # for i in range(1, total_pages + 1):
-    #     sleep(uniform(1, 8))
-    #     gen_url = base_url + page + str(i) + query
-    #     html = get_html(gen_url)
-    #     get_page_data(html)
-    # n = 0
-    #
-    # for url in data_result['Url']:
-    #     n += 1
-    #     print(url)
-    #     print(n)
-    #     sleep(uniform(1, 4))
-    #     html = get_html(url)
-    #     get_more_data(html)
-    #
-    #     write_csv(data_result)
+    get_detail_ads_data(req_avito, parser_avito)
 
 
 if __name__ == '__main__':
     main()
-    # from urllib import parse
-    # from urllib.parse import urlparse, ParseResult, parse_qs, urlencode, urlunsplit
-    #
-    # url = 'https://www.avito.ru/nizhniy_novgorod/doma_dachi_kottedzhi/prodam/dom?p=2&pmax=4000000&pmin=2000000&s_trg=4&user=1'
-    #
-    # data = urlparse(url)
-    #
-    # query_data = parse_qs(data.query)
-    #
-    # # меняю параметр
-    # query_data['p'][0] = str(2)
-
-    # new_url = urlunsplit((data.scheme, data.hostname, data.path, urlencode(query_data, doseq=True), ''))
-    # print(new_url)
-
-    # req_avito = RequestHandler()
-    #
-    # data = req_avito.get_html(url.url)
-    #
-    # parser_avito = ParserAvito(data)
-    #
-    # print(parser_avito.count_page)
-    #
-    # url.page_number = 3
-    #
-    # print(url.url)

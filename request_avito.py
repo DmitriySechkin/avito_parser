@@ -25,6 +25,12 @@ class Url:
         self.max_price = 0
         self.page_number = 1
 
+        self.__scheme = ''
+        self.__hostname = ''
+        self.__path = ''
+
+        self.__split_url()
+
     @property
     def url(self):
         """
@@ -37,18 +43,37 @@ class Url:
 
         return self.__parse_url(query_data)
 
+    @property
+    def place(self):
+        """
+        Get name city in url path
+        :return: name of city
+        """
+        return self.__path.split('/')[1].replace('_', ' ')
+
+    def __split_url(self):
+        """
+        split url
+        :return: None
+        """
+
+        data = urlparse(self.base_url)
+
+        self.__scheme = data.scheme
+        self.__hostname = data.hostname
+        self.__path = data.path
+
     def __parse_url(self, query_data):
         """
         parse new url
         :param query_data: required settings for url
         :return: new url
         """
-        data = urlparse(self.base_url)
 
         return urlunsplit((
-            data.scheme,
-            data.hostname,
-            data.path, urlencode(query_data, doseq=True),
+            self.__scheme,
+            self.__hostname,
+            self.__path, urlencode(query_data, doseq=True),
             ''
         ))
 
@@ -108,4 +133,3 @@ class RequestHandler:
 
     def sleep_random_time(self):
         sleep(uniform(1, 5))
-

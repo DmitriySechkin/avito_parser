@@ -26,9 +26,11 @@ def write_csv(data_result, row_number):
         data_row = [data_result[row][row_number] for row in data_result]
         writer.writerow(data_row)
 
+
 def check_file_result():
     if os.path.exists('avito.csv'):
         os.remove('avito.csv')
+
 
 def get_object_url(settings):
     url_obj = Url(settings.base_url)

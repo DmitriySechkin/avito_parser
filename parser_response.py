@@ -154,8 +154,10 @@ class ParserAvito:
 
         views = ''
         views_tag = self.__soup.find('div', class_='title-info-metadata-item title-info-metadata-views')
+
         if views_tag:
             views = views_tag.text.split(" (")[0]
+
         return views
 
     def __get_items_ads(self):

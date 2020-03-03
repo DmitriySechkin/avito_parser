@@ -99,7 +99,12 @@ def get_detail_ads_data(request_avito, parser_avito):
             continue
 
         parser_avito.html = html_data
-        parser_avito.parse_detail_data()
+
+        try:
+            parser_avito.parse_detail_data()
+        except:
+            cnt += 1
+            continue
 
         write_csv(parser_avito.result_data.page_data, cnt)
 

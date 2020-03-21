@@ -12,7 +12,6 @@ import csv
 
 # getting of data about houses in Nizhny Novgorod and write result to csv file
 
-
 def write_csv(data_result, row_number):
     """
     writing result to a csv file

@@ -182,9 +182,14 @@ class ParserAvito:
         """
         items = self.__get_items_ads()
 
+        if not items:
+            print ('')
+
         for item in items:
             key = item.find('span', class_='item-params-label').text
             value = self.__get_data_in_item(item).strip()
+
+            assert bool(key) == True
 
             self.result_data.append_data(key, value)
 

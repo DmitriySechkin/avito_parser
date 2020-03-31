@@ -22,8 +22,11 @@ def write_csv(data_result, row_number):
     with open('avito.csv', 'a', encoding='utf16', newline='') as f:
         writer = csv.writer(f)
 
-        data_row = [data_result[row][row_number] for row in data_result]
-        writer.writerow(data_row)
+        try:
+            data_row = [data_result[row][row_number] for row in data_result]
+            writer.writerow(data_row)
+        except IndexError:
+            pass
 
 
 def check_file_result():
@@ -75,7 +78,7 @@ def get_main_ads_data(request_avito, total_pages, url, parser_avito):
 
 def get_detail_ads_data(request_avito, parser_avito):
     """
-    Retrieving the detail data from an ad
+    Retrieving the detail data from the ad
     :param request_avito: object of the class RequestHandler
     :param parser_avito: object of the class ParserAvito
     :return: None
@@ -90,9 +93,6 @@ def get_detail_ads_data(request_avito, parser_avito):
 
         try:
             html_data = send_get_request(request_avito, url, True)
-        except FailedItemsGetting as err:
-            print(url, str(err), sep=" ")
-            continue
         except FailedGetRequest as err:
             print(url, str(err), sep=" ")
             continue
@@ -101,7 +101,8 @@ def get_detail_ads_data(request_avito, parser_avito):
 
         try:
             parser_avito.parse_detail_data()
-        except:
+        except FailedItemsGetting as err:
+            print(url, str(err), sep=" ")
             cnt += 1
             continue
 

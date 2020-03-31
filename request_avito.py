@@ -122,7 +122,7 @@ class RequestHandler:
         :return: html code of web page
         """
 
-        response = requests.get(url, headers=self.__headers)
+        response = requests.get(url, headers=self.__headers, verify=False)
         self.__check_result_response(response)
 
         return response.text
@@ -132,4 +132,4 @@ class RequestHandler:
             raise FailedGetRequest(response.status_code)
 
     def sleep_random_time(self):
-        sleep(uniform(1, 5))
+        sleep(uniform(1, 7))

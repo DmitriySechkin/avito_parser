@@ -102,6 +102,7 @@ def get_detail_ads_data(request_avito, parser_avito):
         try:
             parser_avito.parse_detail_data()
         except FailedItemsGetting as err:
+            parser_avito.parse_detail_data()
             print(url, str(err), sep=" ")
             cnt += 1
             continue

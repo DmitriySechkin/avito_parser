@@ -33,3 +33,6 @@ $RECYCLE.BIN/
 *.idea
 
 # End of https://www.gitignore.io/api/windows
+
+#other files
+avito.csv
